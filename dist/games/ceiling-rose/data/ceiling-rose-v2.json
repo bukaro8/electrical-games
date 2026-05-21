@@ -149,7 +149,7 @@
     { "from": "s1_l1", "to": "s2_l2", "wireCoreId": "three_grey" },
     { "from": "s1_l2", "to": "s2_l1", "wireCoreId": "three_brown" },
     { "from": "s1_cpc", "to": "s2_cpc", "wireCoreId": "three_green_yellow" },
-    { "from": "s2_com", "to": "rose_1_1", "wireCoreId": "brown_live" },
+    { "from": "rose_1_1", "to": "lamp_live", "wireCoreId": "brown_live" },
     { "from": "rose_3_2", "to": "lamp_neutral", "wireCoreId": "blue_neutral" }
   ],
   "instructions": [
@@ -163,7 +163,7 @@
     { "step": 8, "text": "Connect S1 L1 (Grey) to S2 L2 using the Grey core of the 3-core cable", "highlightTerminals": ["s1_l1", "s2_l2"] },
     { "step": 9, "text": "Connect S1 L2 (Brown) to S2 L1 using the Brown core of the 3-core cable", "highlightTerminals": ["s1_l2", "s2_l1"] },
     { "step": 10, "text": "Connect S1 Earth to S2 Earth", "highlightTerminals": ["s1_cpc", "s2_cpc"] },
-    { "step": 11, "text": "Connect S2 COM (Brown) to Ceiling Rose 1.1", "highlightTerminals": ["s2_com", "rose_1_1"] },
+    { "step": 11, "text": "Connect Ceiling Rose 1.1 to Lamp Live using Brown wire", "highlightTerminals": ["rose_1_1", "lamp_live"] },
     { "step": 12, "text": "Connect Ceiling Rose 3.2 (Blue) to Lamp Neutral", "highlightTerminals": ["rose_3_2", "lamp_neutral"] }
   ],
   "feedback": {

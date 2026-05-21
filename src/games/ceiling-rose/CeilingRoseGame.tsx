@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { GameShell } from '@components/GameShell';
 import {
   Canvas,
@@ -17,6 +18,7 @@ export function CeilingRoseGame() {
   const [config, setConfig] = useState<GameConfig | null>(null);
   const [sourceTerminalId, setSourceTerminalId] = useState<string | null>(null);
   const [mode, setMode] = useState<GameMode>('learn');
+  const [lampOn, setLampOn] = useState(false);
 
   const sourceRef = useRef<{ terminalId: string; wireCoreId: string } | null>(null);
 
@@ -71,6 +73,7 @@ export function CeilingRoseGame() {
   const handleReset = useCallback(() => {
     sourceRef.current = null;
     setSourceTerminalId(null);
+    setLampOn(false);
     store.getState().reset();
   }, []);
 
@@ -80,7 +83,19 @@ export function CeilingRoseGame() {
     const placed = s.connections.filter(c => c.status === 'placed');
 
     if (result.status === 'correct') {
-      alert('Correct ✅');
+      setLampOn(true);
+      confetti({
+        particleCount: 40,
+        spread: 70,
+        origin: { y: 0.55 },
+        colors: ['#22c55e', '#3b82f6', '#f59e0b', '#f97316'],
+        gravity: 0.6,
+        startVelocity: 25,
+        decay: 0.92,
+      });
+      setTimeout(() => {
+        alert('Correct ✅');
+      }, 200);
       return;
     }
 
@@ -274,6 +289,7 @@ function getTerminalDisplayName(id: string): string {
             sourceTerminalId={sourceTerminalId}
             currentStep={state.currentStep}
             mode={mode}
+            lampOn={lampOn}
             onTerminalPointerDown={handleTerminalPointerDown}
             onRemoveConnection={handleRemoveConnection}
             onCancel={handleCancel}

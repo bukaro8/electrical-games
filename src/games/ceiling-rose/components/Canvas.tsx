@@ -9,7 +9,7 @@ import {
   SupplyVisual,
 } from './visual';
 
-const VISUAL_MAP: Record<string, React.FC<{ label?: string }>> = {
+const VISUAL_MAP: Record<string, React.FC<{ label?: string; on?: boolean }>> = {
   ceiling_rose: CeilingRoseVisual,
   switch_2way: SwitchVisual,
   switch_1way: SwitchVisual,
@@ -24,6 +24,7 @@ interface CanvasProps {
   sourceTerminalId: string | null;
   currentStep: number;
   mode: 'learn' | 'practice';
+  lampOn: boolean;
   onTerminalPointerDown: (terminalId: string) => void;
   onRemoveConnection: (connectionId: string) => void;
   onCancel: () => void;
@@ -36,6 +37,7 @@ export function Canvas({
   sourceTerminalId,
   currentStep,
   mode,
+  lampOn,
   onTerminalPointerDown,
   onRemoveConnection,
   onCancel,
@@ -123,7 +125,12 @@ export function Canvas({
               transform={`translate(${component.positionX}, ${component.positionY})`}
             >
               <g pointerEvents="none">
-                {VisualComponent && <VisualComponent label={component.label} />}
+                {VisualComponent && (
+                  <VisualComponent
+                    label={component.label}
+                    on={component.componentType === 'lamp' ? lampOn : undefined}
+                  />
+                )}
               </g>
             </g>
           );
