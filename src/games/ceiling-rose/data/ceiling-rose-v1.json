@@ -1,0 +1,118 @@
+{
+  "gameId": "ceiling-rose-v1",
+  "title": "Ceiling Rose — 1-Way Switch",
+  "description": "Wire a UK ceiling rose on the training board",
+  "difficulty": "beginner",
+  "components": [
+    {
+      "id": "supply",
+      "componentType": "supply",
+      "label": "Supply",
+      "positionX": 100,
+      "positionY": 310,
+      "terminals": [
+        { "id": "supply_live", "label": "Live", "labelColor": "brown", "portType": "live", "localX": 80, "localY": -45 },
+        { "id": "supply_neutral", "label": "Neutral", "labelColor": "blue", "portType": "neutral", "localX": 80, "localY": 5 },
+        { "id": "supply_cpc", "label": "Earth", "labelColor": "green/yellow", "portType": "cpc", "localX": 80, "localY": 55 }
+      ]
+    },
+    {
+      "id": "ceiling_rose",
+      "componentType": "ceiling_rose",
+      "label": "Ceiling Rose",
+      "positionX": 550,
+      "positionY": 260,
+      "terminals": [
+        { "id": "rose_1_1", "label": "1.1", "labelColor": "brown", "portType": "lamp_l", "localX": -55, "localY": -50 },
+        { "id": "rose_1_2", "label": "1.2", "labelColor": "brown", "portType": "switched_live", "localX": 55, "localY": -50 },
+        { "id": "rose_2_1", "label": "2.1", "labelColor": "brown", "portType": "live", "localX": -70, "localY": 25 },
+        { "id": "rose_2_2", "label": "2.2", "labelColor": "brown", "portType": "com", "localX": 0, "localY": 25 },
+        { "id": "rose_2_3", "label": "2.3", "labelColor": "brown", "portType": "live", "localX": 70, "localY": 25 },
+        { "id": "rose_3_1", "label": "3.1", "labelColor": "blue", "portType": "neutral", "localX": -70, "localY": 90 },
+        { "id": "rose_3_2", "label": "3.2", "labelColor": "blue", "portType": "lamp_n", "localX": 0, "localY": 90 },
+        { "id": "rose_3_3", "label": "3.3", "labelColor": "blue", "portType": "neutral", "localX": 70, "localY": 90 },
+        { "id": "rose_cpc", "label": "Earth", "labelColor": "green/yellow", "portType": "cpc", "localX": 0, "localY": 135 }
+      ]
+    },
+    {
+      "id": "switch_2way",
+      "componentType": "switch_2way",
+      "label": "Switch",
+      "positionX": 550,
+      "positionY": 580,
+      "terminals": [
+        { "id": "switch_com", "label": "COM", "labelColor": "brown", "portType": "com", "localX": -60, "localY": -25 },
+        { "id": "switch_l1", "label": "L1", "labelColor": "brown", "portType": "L1", "localX": 0, "localY": -25 },
+        { "id": "switch_l2", "label": "L2", "labelColor": "brown", "portType": "L2", "localX": 60, "localY": -25 },
+        { "id": "switch_cpc", "label": "Earth", "labelColor": "green/yellow", "portType": "cpc", "localX": 0, "localY": 40 }
+      ]
+    },
+    {
+      "id": "lamp",
+      "componentType": "lamp",
+      "label": "Lamp",
+      "positionX": 900,
+      "positionY": 280,
+      "terminals": [
+        { "id": "lamp_live", "label": "Live", "labelColor": "brown", "portType": "lamp_l", "localX": -70, "localY": -45 },
+        { "id": "lamp_neutral", "label": "Neutral", "labelColor": "blue", "portType": "lamp_n", "localX": -70, "localY": 5 },
+        { "id": "lamp_cpc", "label": "Earth", "labelColor": "green/yellow", "portType": "cpc", "localX": -70, "localY": 55 }
+      ]
+    }
+  ],
+  "cableGroups": [
+    {
+      "id": "twin_earth",
+      "name": "Twin & Earth 2.5mm²",
+      "expandByDefault": true,
+      "cores": [
+        {
+          "id": "brown_live",
+          "color": "brown",
+          "label": "Brown (Live)",
+          "defaultPortRole": "live",
+          "compatiblePorts": ["live", "com", "switched_live", "lamp_l", "L1", "L2"]
+        },
+        {
+          "id": "blue_neutral",
+          "color": "blue",
+          "label": "Blue (Neutral)",
+          "defaultPortRole": "neutral",
+          "compatiblePorts": ["neutral", "lamp_n"]
+        },
+        {
+          "id": "green_yellow_cpc",
+          "color": "green/yellow",
+          "label": "Green/Yellow (CPC)",
+          "defaultPortRole": "cpc",
+          "compatiblePorts": ["cpc", "earth"]
+        }
+      ]
+    }
+  ],
+  "correctConnections": [
+    { "from": "supply_live", "to": "rose_2_1", "wireCoreId": "brown_live" },
+    { "from": "supply_neutral", "to": "rose_3_1", "wireCoreId": "blue_neutral" },
+    { "from": "supply_cpc", "to": "rose_cpc", "wireCoreId": "green_yellow_cpc" },
+    { "from": "rose_2_2", "to": "switch_com", "wireCoreId": "brown_live" },
+    { "from": "rose_1_2", "to": "switch_l1", "wireCoreId": "brown_live" },
+    { "from": "rose_cpc", "to": "switch_cpc", "wireCoreId": "green_yellow_cpc" },
+    { "from": "rose_1_1", "to": "lamp_live", "wireCoreId": "brown_live" },
+    { "from": "rose_3_2", "to": "lamp_neutral", "wireCoreId": "blue_neutral" }
+  ],
+  "instructions": [
+    { "step": 1, "text": "Connect Supply Live (Brown) to Ceiling Rose terminal 2.1", "highlightTerminals": ["supply_live", "rose_2_1"] },
+    { "step": 2, "text": "Connect Supply Neutral (Blue) to Ceiling Rose terminal 3.1", "highlightTerminals": ["supply_neutral", "rose_3_1"] },
+    { "step": 3, "text": "Connect Supply Earth (Green/Yellow) to Ceiling Rose Earth terminal", "highlightTerminals": ["supply_cpc", "rose_cpc"] },
+    { "step": 4, "text": "Connect Ceiling Rose terminal 2.2 (Brown) to Switch COM", "highlightTerminals": ["rose_2_2", "switch_com"] },
+    { "step": 5, "text": "Connect Ceiling Rose terminal 1.2 (Brown) to Switch L1", "highlightTerminals": ["rose_1_2", "switch_l1"] },
+    { "step": 6, "text": "Connect Ceiling Rose Earth (Green/Yellow) to Switch Earth terminal", "highlightTerminals": ["rose_cpc", "switch_cpc"] },
+    { "step": 7, "text": "Connect Ceiling Rose terminal 1.1 (Brown) to Lamp Live terminal", "highlightTerminals": ["rose_1_1", "lamp_live"] },
+    { "step": 8, "text": "Connect Ceiling Rose terminal 3.2 (Blue) to Lamp Neutral terminal", "highlightTerminals": ["rose_3_2", "lamp_neutral"] }
+  ],
+  "feedback": {
+    "correct": "Well done! Circuit correctly wired.",
+    "incomplete": "Some connections are missing.",
+    "incorrect": "One or more connections are wrong."
+  }
+}
