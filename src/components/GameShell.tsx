@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import { Button } from './Button';
 
 interface GameShellProps {
@@ -31,51 +31,62 @@ export function GameShell({
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Logo */}
-              <div className="flex items-center gap-2">
-                <svg
-                  viewBox="0 0 32 32"
-                  className="w-8 h-8"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="12"
-                    stroke="#1E40AF"
-                    strokeWidth="2"
+              <div className="flex items-center gap-4">
+                {/* Logo / Home link */}
+                <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <svg
+                    viewBox="0 0 32 32"
+                    className="w-8 h-8"
                     fill="none"
-                  />
-                  <circle cx="16" cy="16" r="5" fill="#1E40AF" />
-                  <line
-                    x1="16"
-                    y1="4"
-                    x2="16"
-                    y2="11"
-                    stroke="#8B4513"
-                    strokeWidth="2"
-                  />
-                  <line
-                    x1="16"
-                    y1="21"
-                    x2="16"
-                    y2="28"
-                    stroke="#8B4513"
-                    strokeWidth="2"
-                  />
-                </svg>
-                <span className="font-bold text-lg text-slate-900 hidden sm:inline">
-                  Electrical Practice
-                </span>
-              </div>
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="12"
+                      stroke="#1E40AF"
+                      strokeWidth="2"
+                      fill="none"
+                    />
+                    <circle cx="16" cy="16" r="5" fill="#1E40AF" />
+                    <line
+                      x1="16"
+                      y1="4"
+                      x2="16"
+                      y2="11"
+                      stroke="#8B4513"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1="16"
+                      y1="21"
+                      x2="16"
+                      y2="28"
+                      stroke="#8B4513"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                  <span className="font-bold text-lg text-slate-900 hidden sm:inline">
+                    Electrical Practice
+                  </span>
+                </Link>
               <div className="h-6 w-px bg-slate-200 hidden sm:block" />
-              <div>
-                <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
-                {subtitle && (
-                  <p className="text-sm text-slate-500">{subtitle}</p>
-                )}
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/"
+                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  title="Back to menu"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </Link>
+                <div>
+                  <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+                  {subtitle && (
+                    <p className="text-sm text-slate-500">{subtitle}</p>
+                  )}
+                </div>
               </div>
             </div>
 
