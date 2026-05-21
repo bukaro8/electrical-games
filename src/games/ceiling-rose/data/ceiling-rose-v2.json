@@ -117,15 +117,15 @@
         {
           "id": "three_black",
           "color": "black",
-          "label": "Black",
-          "defaultPortRole": "neutral",
-          "compatiblePorts": ["L1", "L2"]
+          "label": "Black (Live)",
+          "defaultPortRole": "live",
+          "compatiblePorts": ["com", "L1", "L2"]
         },
         {
           "id": "three_grey",
           "color": "grey",
-          "label": "Grey",
-          "defaultPortRole": "neutral",
+          "label": "Grey (Live)",
+          "defaultPortRole": "live",
           "compatiblePorts": ["L1", "L2"]
         },
         {
@@ -142,12 +142,12 @@
     { "from": "supply_live", "to": "rose_2_1", "wireCoreId": "brown_live" },
     { "from": "supply_neutral", "to": "rose_3_1", "wireCoreId": "blue_neutral" },
     { "from": "supply_cpc", "to": "rose_cpc", "wireCoreId": "green_yellow_cpc" },
-    { "from": "rose_2_2", "to": "s1_com", "wireCoreId": "brown_live" },
-    { "from": "rose_1_2", "to": "s1_l2", "wireCoreId": "brown_live" },
+    { "from": "rose_1_2", "to": "s1_l1", "wireCoreId": "brown_live" },
+    { "from": "rose_2_2", "to": "s1_l2", "wireCoreId": "brown_live" },
     { "from": "rose_cpc", "to": "s1_cpc", "wireCoreId": "green_yellow_cpc" },
-    { "from": "s1_l1", "to": "s2_l2", "wireCoreId": "three_brown" },
-    { "from": "s1_l2", "to": "s2_l1", "wireCoreId": "three_black" },
-    { "from": "s1_com", "to": "s2_com", "wireCoreId": "three_grey" },
+    { "from": "s1_com", "to": "s2_com", "wireCoreId": "three_black" },
+    { "from": "s1_l1", "to": "s2_l2", "wireCoreId": "three_grey" },
+    { "from": "s1_l2", "to": "s2_l1", "wireCoreId": "three_brown" },
     { "from": "s1_cpc", "to": "s2_cpc", "wireCoreId": "three_green_yellow" },
     { "from": "s2_com", "to": "rose_1_1", "wireCoreId": "brown_live" },
     { "from": "rose_3_2", "to": "lamp_neutral", "wireCoreId": "blue_neutral" }
@@ -156,12 +156,12 @@
     { "step": 1, "text": "Connect Supply Live (Brown) to Ceiling Rose terminal 2.1", "highlightTerminals": ["supply_live", "rose_2_1"] },
     { "step": 2, "text": "Connect Supply Neutral (Blue) to Ceiling Rose terminal 3.1", "highlightTerminals": ["supply_neutral", "rose_3_1"] },
     { "step": 3, "text": "Connect Supply Earth (Green/Yellow) to Ceiling Rose Earth", "highlightTerminals": ["supply_cpc", "rose_cpc"] },
-    { "step": 4, "text": "Connect Ceiling Rose 2.2 (Brown) to S1 COM", "highlightTerminals": ["rose_2_2", "s1_com"] },
-    { "step": 5, "text": "Connect Ceiling Rose 1.2 (Brown) to S1 L2", "highlightTerminals": ["rose_1_2", "s1_l2"] },
-    { "step": 6, "text": "Connect Ceiling Rose Earth to S1 Earth", "highlightTerminals": ["rose_cpc", "s1_cpc"] },
-    { "step": 7, "text": "Connect S1 COM (Grey) to S2 COM", "highlightTerminals": ["s1_com", "s2_com"] },
-    { "step": 8, "text": "Connect S1 L1 (Brown) to S2 L2", "highlightTerminals": ["s1_l1", "s2_l2"] },
-    { "step": 9, "text": "Connect S1 L2 (Black) to S2 L1", "highlightTerminals": ["s1_l2", "s2_l1"] },
+    { "step": 4, "text": "Connect Ceiling Rose 1.2 to S1 L1 using Brown wire (switched live)", "highlightTerminals": ["rose_1_2", "s1_l1"] },
+    { "step": 5, "text": "Connect Ceiling Rose 2.2 to S1 L2 using Brown wire (permanent live)", "highlightTerminals": ["rose_2_2", "s1_l2"] },
+    { "step": 6, "text": "Connect Ceiling Rose Earth to S1 Earth using Green/Yellow wire", "highlightTerminals": ["rose_cpc", "s1_cpc"] },
+    { "step": 7, "text": "Connect S1 COM (Black) to S2 COM using the Black core of the 3-core cable", "highlightTerminals": ["s1_com", "s2_com"] },
+    { "step": 8, "text": "Connect S1 L1 (Grey) to S2 L2 using the Grey core of the 3-core cable", "highlightTerminals": ["s1_l1", "s2_l2"] },
+    { "step": 9, "text": "Connect S1 L2 (Brown) to S2 L1 using the Brown core of the 3-core cable", "highlightTerminals": ["s1_l2", "s2_l1"] },
     { "step": 10, "text": "Connect S1 Earth to S2 Earth", "highlightTerminals": ["s1_cpc", "s2_cpc"] },
     { "step": 11, "text": "Connect S2 COM (Brown) to Ceiling Rose 1.1", "highlightTerminals": ["s2_com", "rose_1_1"] },
     { "step": 12, "text": "Connect Ceiling Rose 3.2 (Blue) to Lamp Neutral", "highlightTerminals": ["rose_3_2", "lamp_neutral"] }

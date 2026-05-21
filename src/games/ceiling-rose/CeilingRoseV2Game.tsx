@@ -237,11 +237,19 @@ function getTerminalDisplayName(id: string): string {
           />
 
           {isLearn ? (
-            <InstructionPanel
-              instructions={config.instructions}
-              currentStep={state.currentStep}
-              onStepChange={(step) => store.getState().goToStep(step)}
-            />
+            <>
+              <InstructionPanel
+                instructions={config.instructions}
+                currentStep={state.currentStep}
+                onStepChange={(step) => store.getState().goToStep(step)}
+              />
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  <span className="font-semibold">Note:</span> Black and grey should be sleeved
+                  brown in a real installation because they are live conductors.
+                </p>
+              </div>
+            </>
           ) : (
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
               <h3 className="font-semibold text-slate-700 mb-2 text-sm uppercase tracking-wide">
