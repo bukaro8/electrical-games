@@ -4,7 +4,7 @@
 
 ## Overview
 
-A web app providing interactive electrical wiring practice for UK electrical students. Version 1 contains one game: Ceiling Rose Practice.
+A web app providing interactive electrical wiring practice for UK electrical students. The app contains one-way and two-way Ceiling Rose Practice levels.
 
 - **Target users:** Beginner UK electrical students
 - **Deployment:** Coolify (static SPA via nginx)
@@ -83,7 +83,7 @@ src/
 3. Add a route in `App.tsx`
 4. Add entry to `GameSelect.tsx` game catalog
 
-**No changes to the engine are required for new games.** Adding a variant of an existing game = new JSON file only.
+**No changes to the engine are required for new games.** Ceiling rose variants share `CeilingRoseGame`, which receives a typed configuration prop. Add the JSON file, route, and catalog entry for each new variant.
 
 ---
 
@@ -204,12 +204,12 @@ Each game level is a JSON file matching `GameConfig`:
    - Cursor changes to indicate "wire ready"
 
 2. User **clicks a source terminal** on the canvas
-   - Pending connection created: `{ from: sourceId, to: null, wireCoreId, status: 'pending' }`
+   - Source terminal is held in local UI state; Canvas derives a pending preview from it and the selected wire core
    - A dashed wire follows the cursor
    - Source terminal highlights green
 
 3. User **clicks a target terminal**
-   - Connection completed: `to` set, `status` changed to `'placed'`
+   - A completed connection is added to the store with `status: 'placed'`
    - Wire rendered as a solid bezier curve on the canvas
 
 ### Cancel Flow
@@ -227,7 +227,7 @@ Each game level is a JSON file matching `GameConfig`:
 ### Test Circuit
 
 - "Test Circuit" button runs full circuit validation
-- Results shown in `ResultModal` with per-wire feedback
+- Results shown in an alert with per-wire feedback and the missing terminal pairs
 
 ---
 
@@ -246,15 +246,15 @@ Each connection is validated against `correctConnections`:
 Runs on "Test Circuit" button press:
 
 1. Validate each placed connection individually
-2. Identify missing terminal connections
-3. Identify extra connections (not in the correct list)
+2. Identify missing required connections by terminal pair and wire core (order-independent), even when both terminals have other connections
+3. Reject duplicate pairs; validate optional connections including their core, and exclude them from extra connections
 4. Calculate score
 5. Return `CircuitValidationResult` with status, score, and feedback
 
 ### Scoring
 
 ```
-score = (correctCount × 10) - (incorrectCount × 5) + (incorrectCount === 0 ? 20 : 0)
+score = max(0, (correctCount × 10) - (incorrectCount × 5) + (status === "correct" ? 20 : 0))
 ```
 
 ---
@@ -291,7 +291,7 @@ Store is created via `createGameStore()` factory — each game gets its own stor
 ### Wire Availability
 
 - **Infinite** — wires are always available in the palette
-- User can place unlimited connections with the same wire colour
+- User can reuse the same wire colour across terminal pairs; duplicate terminal pairs are rejected
 - Palette wires are NOT consumed on placement
 
 ### Canvas
@@ -308,13 +308,13 @@ Store is created via `createGameStore()` factory — each game gets its own stor
 - Previous/Next navigation
 - Step indicator dots
 
-### Result Modal
+### Results
 
-- Pass/fail state with icon
-- Score display
-- Per-wire feedback for incorrect connections
-- Missing terminals list
-- "Keep Working" and "Try Again" actions
+- Test displays an alert with success, incomplete, or incorrect feedback
+- Incorrect wires and missing required terminal pairs are listed
+- Score and attempts appear in the header
+- Editing wiring clears the previous result, score, and illuminated lamp
+- `ResultModal` is currently unused
 
 ---
 
@@ -378,6 +378,7 @@ The architecture already supports V2 additions via JSON config:
 | `npm run preview` | Preview production build locally |
 | `npm run typecheck` | Run TypeScript type checking |
 | `npm run lint` | Run ESLint |
+| `npm test` | Run engine and store regression tests |
 
 ---
 
@@ -388,3 +389,25 @@ The architecture already supports V2 additions via JSON config:
 - @dnd-kit uses the new v0.4+ hooks API (`useDraggable`, `useDroppable`, `DragDropProvider`, `DragOverlay`)
 - Zustand v5 uses `create` from 'zustand' with devtools middleware
 - Path aliases: `@engine/*`, `@components/*`, `@games/*` map to `src/engine/*`, etc.
+
+## Configuration ownership and verification
+
+- `src/games/ceiling-rose/data/` is the single source for both level configurations. Routes import these JSON files into the bundle; public copies and runtime configuration fetches are removed.
+- Both routes render the shared `CeilingRoseGame` with a level key, isolating state when changing levels.
+- Canvas uses pointer coordinates transformed through the SVG screen matrix, draws pending previews, and allows background click/tap or Escape to cancel.
+- Regression tests exercise every single-wire omission in both levels, reversed endpoints, duplicate scoring, wrong cores, optional connections, and state invalidation after edits.
+
+## Symbol Match
+
+- Route: `/games/symbols`, linked from the game selection screen.
+- 18 symbols redrawn as SVG from the two supplied Unit 203 photos in `src/images`.
+- One symbol per question with four shuffled, unique names; every included symbol appears once per full round.
+- Sticky score and progress header; no timer. A correct answer earns 10 points, or 5 after a hint. Incorrect answers and reveals earn 0. Each question can be scored only once.
+- Help opens explicit hint and reveal controls and explains scoring before use.
+- Answer feedback includes the correct name and an explanation. Advancement is manual, with keyboard focus moved to Next and then to the next heading.
+- Results offer another full round or a fresh round containing only missed/revealed symbols, plus illustrated review cards.
+- Responsive single-column phone layout, native keyboard-operable buttons, live feedback, visible focus indicators, and reduced-motion support.
+- No progress persistence: leaving or reloading starts a new round.
+- Four unlabelled photo symbols (square with cross, presumed dimmer, presumed bell, presumed loudspeaker) remain excluded pending confirmation of the worksheet answer key. Do not turn tentative identifications into scored questions.
+- Content reference for installation-plan conventions: https://support.maxem.io/hubfs/IEC%2060617%20SYMBOLS.pdf (installation symbols on pages 21–23). The main intake point identification also appears in https://booksite.elsevier.com/samplechapters/9780750687515/9780750687515.pdf . Explicit labels in the user's worksheets take precedence for the worksheet-specific names.
+- Tests cover round integrity, unique choices, correct-answer inclusion, scoring, review subsets and non-mutating shuffling. Browser checks cover 10/5/0 scoring, disabled completed answers, full-round completion, review restart, menu navigation, and a 390px mobile layout.

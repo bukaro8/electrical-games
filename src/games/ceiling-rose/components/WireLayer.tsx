@@ -171,7 +171,7 @@ export function WireLayer({
           );
 
           return (
-            <g key={connection.id}>
+            <g key={connection.id} pointerEvents="none">
               {/* Dashed preview wire */}
               <path
                 d={path}

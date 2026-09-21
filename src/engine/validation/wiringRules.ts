@@ -39,23 +39,17 @@ export function validateWireCore(
   const fromTerminal = findTerminal(config, connection.from);
   const toTerminal = findTerminal(config, connection.to || '');
 
-  const correctConn = config.correctConnections.find((c) =>
+  const correctConn = [...config.correctConnections, ...(config.optionalConnections || [])].find((c) =>
     connectionsMatch(connection.from, connection.to || '', c)
   );
 
   if (!correctConn) {
-    const isOptional = config.optionalConnections?.some((c) =>
-      connectionsMatch(connection.from, connection.to || '', c)
-    );
-
     return {
       connection,
-      isCorrect: isOptional || false,
+      isCorrect: false,
       correctWireCoreId: '',
-      correctWireLabel: isOptional ? 'Optional' : 'Not expected',
-      feedbackMessage: isOptional
-        ? 'This connection is optional.'
-        : 'This connection is not part of the expected circuit.',
+      correctWireLabel: 'Not expected',
+      feedbackMessage: 'This connection is not part of the expected circuit.',
       fromTerminal: fromTerminal!,
       toTerminal: toTerminal!,
     };

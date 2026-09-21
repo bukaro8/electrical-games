@@ -46,14 +46,12 @@ export function Canvas({
 
   const hasPending = sourceTerminalId !== null;
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+  const handleMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
-    const rect = svg.getBoundingClientRect();
-    const vb = svg.viewBox.baseVal;
-    setMousePos({
-      x: ((e.clientX - rect.left) / rect.width) * vb.width,
-      y: ((e.clientY - rect.top) / rect.height) * vb.height,
-    });
+    const matrix = svg.getScreenCTM();
+    if (!matrix) return;
+    const point = new DOMPoint(e.clientX, e.clientY).matrixTransform(matrix.inverse());
+    setMousePos({ x: point.x, y: point.y });
   }, []);
 
   const handleSvgClick = useCallback(
@@ -105,7 +103,8 @@ export function Canvas({
       <svg
         viewBox="0 0 1200 750"
         className="w-full h-full"
-        onMouseMove={handleMouseMove}
+        onPointerDownCapture={handleMouseMove}
+        onPointerMove={handleMouseMove}
         onClick={handleSvgClick}
         style={{ touchAction: 'none' }}
       >
@@ -114,7 +113,7 @@ export function Canvas({
             <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
+        <rect width="100%" height="100%" fill="url(#grid)" pointerEvents="none" />
 
         {/* 1. Component visuals (behind everything) */}
         {config.components.map((component) => {
@@ -138,7 +137,10 @@ export function Canvas({
 
         {/* 2. WireLayer (middle — wires visible but behind terminals) */}
         <WireLayer
-          connections={connections}
+          connections={sourceTerminalId && selectedWireCoreId ? [...connections, {
+            id: 'pending-preview', from: sourceTerminalId, to: null,
+            wireCoreId: selectedWireCoreId, status: 'pending',
+          }] : connections}
           components={config.components}
           pendingMouseX={mousePos.x}
           pendingMouseY={mousePos.y}

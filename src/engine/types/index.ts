@@ -175,6 +175,7 @@ export interface CircuitValidationResult {
   status: 'correct' | 'incomplete' | 'incorrect';
   correctCount: number;
   incorrectConnections: WireValidationResult[];
+  missingConnections: CorrectConnection[];
   missingTerminals: string[];
   extraConnections: string[];
   score: number;

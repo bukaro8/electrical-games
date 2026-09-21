@@ -3,6 +3,11 @@ import type { GameEntry } from '@engine/types';
 
 const AVAILABLE_GAMES: GameEntry[] = [
   {
+    gameId: 'symbols', title: 'Symbol Match',
+    description: 'Learn electrical symbols one question at a time. Match each symbol to its name, earn points, and get a hint whenever you need one.',
+    difficulty: 'beginner', route: '/games/symbols',
+  },
+  {
     gameId: 'ceiling-rose-v1',
     title: 'Ceiling Rose — 1-Way Switch',
     description:
@@ -50,6 +55,7 @@ function GameCard({ game }: GameCardProps) {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          {game.gameId === 'symbols' ? <g stroke="#1E40AF" strokeWidth="3"><path d="M12 24 L40 52 M40 24 L12 52 M82 27 L99 9 L106 14" /><circle cx="75" cy="36" r="12" /><path d="M61 67 H105 M61 62 V72 M105 62 V72" /></g> : <g>
           {/* Simplified ceiling rose schematic preview */}
           <circle cx="60" cy="20" r="18" stroke="#1E40AF" strokeWidth="2" fill="none" />
           <circle cx="60" cy="20" r="6" fill="#1E40AF" opacity="0.3" />
@@ -59,6 +65,7 @@ function GameCard({ game }: GameCardProps) {
           <circle cx="90" cy="55" r="4" stroke="#8B4513" strokeWidth="1.5" fill="none" />
           <line x1="60" y1="38" x2="60" y2="55" stroke="#1E40AF" strokeWidth="1.5" />
           <rect x="52" y="55" width="16" height="12" rx="2" stroke="#1E40AF" strokeWidth="1.5" fill="none" />
+          </g>}
         </svg>
       </div>
 
@@ -145,7 +152,7 @@ export function GameSelect() {
                 Electrical Practice Games
               </h1>
               <p className="text-sm text-slate-500">
-                Interactive wiring practice for UK electrical students
+                Interactive electrical practice for UK students
               </p>
             </div>
           </div>
@@ -159,7 +166,7 @@ export function GameSelect() {
             Choose a Game
           </h2>
           <p className="text-sm text-slate-500">
-            Select a circuit to practice wiring. Drag wires to connect terminals.
+            Match electrical symbols or build a circuit. Choose what you’d like to practise.
           </p>
         </div>
 

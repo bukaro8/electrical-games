@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { GameShell } from '@components/GameShell';
 import {
@@ -11,198 +11,52 @@ import { createGameStore } from '@engine/store/useGameStore';
 
 type GameMode = 'learn' | 'practice';
 
-export function CeilingRoseGame() {
-  const store = useMemo(() => createGameStore(), []);
+export function CeilingRoseGame({ config }: { config: GameConfig }) {
+  const store = useMemo(() => {
+    const instance = createGameStore();
+    instance.getState().loadConfig(config);
+    return instance;
+  }, [config]);
   const state = store();
-
-  const [config, setConfig] = useState<GameConfig | null>(null);
   const [sourceTerminalId, setSourceTerminalId] = useState<string | null>(null);
   const [mode, setMode] = useState<GameMode>('learn');
-  const [lampOn, setLampOn] = useState(false);
-
-  const sourceRef = useRef<{ terminalId: string; wireCoreId: string } | null>(null);
-
-  useEffect(() => {
-    fetch('/games/ceiling-rose/data/ceiling-rose-v1.json')
-      .then((res) => {
-        if (!res.ok) throw new Error('Config not found');
-        return res.json();
-      })
-      .then((data) => {
-        setConfig(data);
-        store.getState().loadConfig(data);
-      })
-      .catch((err) => {
-        console.error('Failed to load game config:', err);
-      });
-  }, []);
-
-  const handleTerminalPointerDown = useCallback(
-    (terminalId: string) => {
-      const sourceState = sourceRef.current;
-
-      if (sourceState === null) {
-        const wireCoreId = store.getState().selectedWireCoreId;
-        if (wireCoreId === null) return;
-        sourceRef.current = { terminalId, wireCoreId };
-        setSourceTerminalId(terminalId);
-      } else {
-        if (terminalId === sourceState.terminalId) return;
-        store.getState().addConnection(sourceState.terminalId, terminalId, sourceState.wireCoreId);
-        store.getState().clearSelectedWireCore();
-        sourceRef.current = null;
-        setSourceTerminalId(null);
-      }
-    },
-    []
-  );
+  const lampOn = state.gameStatus === 'complete';
 
   const handleCancel = useCallback(() => {
-    sourceRef.current = null;
     setSourceTerminalId(null);
     store.getState().clearSelectedWireCore();
-  }, []);
+  }, [store]);
 
-  const handleRemoveConnection = useCallback(
-    (connectionId: string) => {
-      store.getState().removeConnection(connectionId);
-    },
-    []
-  );
+  const handleTerminalPointerDown = (terminalId: string) => {
+    if (!state.selectedWireCoreId) return;
+    if (!sourceTerminalId) {
+      setSourceTerminalId(terminalId);
+    } else if (terminalId !== sourceTerminalId) {
+      state.addConnection(sourceTerminalId, terminalId, state.selectedWireCoreId);
+      handleCancel();
+    }
+  };
+  const handleRemoveConnection = state.removeConnection;
+  const handleReset = () => {
+    handleCancel();
+    state.reset();
+  };
 
-  const handleReset = useCallback(() => {
-    sourceRef.current = null;
-    setSourceTerminalId(null);
-    setLampOn(false);
-    store.getState().reset();
-  }, []);
-
-  const handleTestCircuit = useCallback(() => {
-    const s = store.getState();
-    const result = s.testCircuit();
-    const placed = s.connections.filter(c => c.status === 'placed');
-
+  const handleTestCircuit = () => {
+    const result = state.testCircuit();
     if (result.status === 'correct') {
-      setLampOn(true);
-      confetti({
-        particleCount: 40,
-        spread: 70,
-        origin: { y: 0.55 },
-        colors: ['#22c55e', '#3b82f6', '#f59e0b', '#f97316'],
-        gravity: 0.6,
-        startVelocity: 25,
-        decay: 0.92,
-      });
-      setTimeout(() => {
-        alert('Correct ✅');
-      }, 200);
-      return;
+      confetti({ particleCount: 40, spread: 70, origin: { y: 0.55 } });
     }
-
-    const messages: string[] = [];
-
-    if (result.status === 'incomplete') {
-      // Check each correct connection
-      if (s.config) {
-        for (const correct of s.config.correctConnections) {
-          const userHas = placed.some(c =>
-            (c.from === correct.from && c.to === correct.to) ||
-            (c.from === correct.to && c.to === correct.from)
-          );
-          if (!userHas) {
-            const a = getTerminalDisplayName(correct.from);
-            let b = getTerminalDisplayName(correct.to);
-            // For V1: L1 or L2 is acceptable
-            if (correct.to === 'switch_l1' || correct.from === 'switch_l1') {
-              b = 'Switch L1 or L2';
-            }
-            // Earth continuity
-            if (correct.wireCoreId === 'green_yellow_cpc') {
-              messages.push('Earth continuity is incomplete.');
-            } else {
-              messages.push(`${a} is not connected to ${b}.`);
-            }
-          }
-        }
-      }
-    } else {
-      // incorrect — has wrong connections
-      for (const incorrect of result.incorrectConnections) {
-        const msg = incorrect.feedbackMessage;
-        if (msg) messages.push(msg);
-      }
-      // Also check missing
-      if (s.config) {
-        for (const correct of s.config.correctConnections) {
-          const userHas = placed.some(c =>
-            (c.from === correct.from && c.to === correct.to) ||
-            (c.from === correct.to && c.to === correct.from)
-          );
-          if (!userHas) {
-            const a = getTerminalDisplayName(correct.from);
-            let b = getTerminalDisplayName(correct.to);
-            if (correct.to === 'switch_l1' || correct.from === 'switch_l1') {
-              b = 'Switch L1 or L2';
-            }
-            if (correct.wireCoreId === 'green_yellow_cpc') {
-              messages.push('Earth continuity is incomplete.');
-            } else {
-              messages.push(`${a} is not connected to ${b}.`);
-            }
-          }
-        }
-      }
-    }
-
-    // Extra connections
-    for (const extra of result.extraConnections) {
-      const name = getTerminalDisplayName(extra);
-      if (!messages.some(m => m.includes(name))) {
-        messages.push(`${name} is connected but not required for this circuit.`);
-      }
-    }
-
-    const unique = [...new Set(messages)];
-    alert('❌ Incorrect wiring\n\n' + unique.join('\n'));
-  }, []);
-
-function getTerminalDisplayName(id: string): string {
-  if (id.startsWith('supply_')) {
-    const name = id.replace('supply_', '');
-    if (name === 'live') return 'Supply Live';
-    if (name === 'neutral') return 'Supply Neutral';
-    return 'Supply Earth';
-  }
-  if (id.startsWith('rose_')) {
-    const parts = id.replace('rose_', '').split('_');
-    if (parts[0] === 'cpc') return 'Ceiling Rose Earth';
-    return `Ceiling Rose ${parts[0]}.${parts[1]}`;
-  }
-  if (id.startsWith('switch_')) {
-    const name = id.replace('switch_', '');
-    if (name === 'cpc') return 'Switch Earth';
-    if (name === 'com') return 'Switch COM';
-    return `Switch ${name.toUpperCase()}`;
-  }
-  if (id.startsWith('lamp_')) {
-    const name = id.replace('lamp_', '');
-    if (name === 'live') return 'Lamp Live';
-    if (name === 'neutral') return 'Lamp Neutral';
-    return 'Lamp Earth';
-  }
-  return id;
-}
-
-  if (!config) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-slate-500">Loading game...</p>
-        </div>
-      </div>
-    );
-  }
+    const terminalName = (id: string) => {
+      const component = config.components.find(c => c.terminals.some(t => t.id === id));
+      return `${component?.label || ''} ${component?.terminals.find(t => t.id === id)?.label || id}`;
+    };
+    const messages = [result.feedback,
+      ...result.incorrectConnections.map(c => `${terminalName(c.connection.from)} → ${terminalName(c.connection.to || '')}: ${c.feedbackMessage}`),
+      ...result.missingConnections.map(c => `Missing: ${terminalName(c.from)} → ${terminalName(c.to)}.`),
+    ];
+    alert(messages.join('\n'));
+  };
 
   const isLearn = mode === 'learn';
 
@@ -247,7 +101,8 @@ function getTerminalDisplayName(id: string): string {
             cableGroups={config.cableGroups}
             selectedWireCoreId={state.selectedWireCoreId}
             onSelect={(wireCoreId) => {
-              store.getState().selectWireCore(wireCoreId);
+              setSourceTerminalId(null);
+              state.selectWireCore(wireCoreId);
             }}
           />
 
@@ -263,12 +118,18 @@ function getTerminalDisplayName(id: string): string {
                 Task
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Wire a 1-way switched ceiling rose.
+                {config.description}
               </p>
               <p className="text-xs text-slate-400 mt-2">
-                Connect Supply, Ceiling Rose, Switch, and Lamp correctly, then press Test.
+                Complete the connections, then press Test.
               </p>
             </div>
+          )}
+
+          {isLearn && config.cableGroups.some(g => g.id === 'three_core_cpc') && (
+            <p className="text-xs text-amber-800 bg-amber-50 rounded-xl p-3">
+              Black and grey should be sleeved brown in a real installation because they are live conductors.
+            </p>
           )}
 
           <div className="mt-auto pt-4 border-t border-slate-200">

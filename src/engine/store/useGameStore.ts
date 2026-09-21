@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { GameConfig, GameState, Connection, CircuitValidationResult } from '../types';
+import { normalizeConnectionKey } from '../validation/wiringRules';
 import { validateCircuit } from '../validation/circuitValidation';
 
 function generateId(): string {
@@ -65,6 +66,11 @@ export function createGameStore() {
         },
 
         addConnection: (from, to, wireCoreId) => {
+          const { config, connections } = get();
+          const terminals = config?.components.flatMap(c => c.terminals) || [];
+          if (from === to || !terminals.some(t => t.id === from) || !terminals.some(t => t.id === to)
+            || !config?.cableGroups.some(g => g.cores.some(c => c.id === wireCoreId))) return;
+          if (connections.some(c => normalizeConnectionKey(c.from, c.to || '') === normalizeConnectionKey(from, to))) return;
           const connection: Connection = {
             id: generateId(),
             from,
@@ -74,12 +80,14 @@ export function createGameStore() {
           };
           set((state) => ({
             connections: [...state.connections, connection],
+            gameStatus: 'building', score: 0, lastValidationResult: null,
           }));
         },
 
         removeConnection: (connectionId) => {
           set((state) => ({
             connections: state.connections.filter((c) => c.id !== connectionId),
+            gameStatus: 'building', score: 0, lastValidationResult: null,
           }));
         },
 
@@ -106,6 +114,7 @@ export function createGameStore() {
               status: 'incorrect' as const,
               correctCount: 0,
               incorrectConnections: [],
+              missingConnections: [],
               missingTerminals: [],
               extraConnections: [],
               score: 0,
@@ -129,6 +138,7 @@ export function createGameStore() {
           set((state) => ({
             ...initialState,
             config: state.config,
+            gameStatus: state.config ? 'building' : 'idle',
           }));
         },
       }),
