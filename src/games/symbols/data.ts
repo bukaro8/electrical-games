@@ -39,9 +39,32 @@ export function shuffle<T>(items: readonly T[], random = Math.random): T[] {
   }
   return result;
 }
-export function makeRound(questions = SYMBOLS) {
+// Closest available worksheet symbols, selected by outline and distinguishing marks.
+export const SIMILAR_SYMBOLS: Record<string, string[]> = {
+  'one-way': ['two-way', 'intermediate', 'pull'],
+  'two-way': ['one-way', 'intermediate', 'pull'],
+  intermediate: ['two-way', 'one-way', 'pull'],
+  pull: ['one-way', 'two-way', 'intermediate'],
+  socket: ['double-socket', 'phone', 'tv'],
+  'double-socket': ['socket', 'phone', 'tv'],
+  phone: ['tv', 'socket', 'double-socket'],
+  tv: ['phone', 'socket', 'double-socket'],
+  ceiling: ['wall', 'downlight', 'tube'],
+  wall: ['ceiling', 'downlight', 'tube'],
+  downlight: ['ceiling', 'wall', 'motor'],
+  tube: ['multi-tube', 'ceiling', 'wall'],
+  'multi-tube': ['tube', 'intake', 'meter'],
+  intake: ['multi-tube', 'fan', 'heat'],
+  heat: ['motor', 'fan', 'meter'],
+  motor: ['heat', 'downlight', 'fan'],
+  fan: ['heat', 'intake', 'motor'],
+  meter: ['heat', 'intake', 'multi-tube'],
+};
+export function makeRound(questions = SYMBOLS, level: 1 | 2 = 1) {
   return shuffle(questions).map(question => ({ question, options: shuffle([
-    question, ...shuffle(SYMBOLS.filter(s => s.id !== question.id)).slice(0, 3),
+    question, ...(level === 2
+      ? SIMILAR_SYMBOLS[question.id].map(id => SYMBOLS.find(s => s.id === id)!)
+      : shuffle(SYMBOLS.filter(s => s.id !== question.id)).slice(0, 3)),
   ]) }));
 }
 export function answerPoints(correct: boolean, hintUsed: boolean, revealed = false) {

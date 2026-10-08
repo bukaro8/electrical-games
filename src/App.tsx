@@ -10,7 +10,8 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Routes>
-        <Route path="/games/symbols" element={<SymbolQuiz />} />
+        <Route path="/games/symbols/level-2" element={<SymbolQuiz key="symbols-2" level={2} />} />
+        <Route path="/games/symbols" element={<SymbolQuiz key="symbols-1" />} />
         <Route path="/" element={<GameSelect />} />
         <Route path="/games/ceiling-rose" element={<CeilingRoseGame key="v1" config={v1 as GameConfig} />} />
         <Route path="/games/ceiling-rose-v2" element={<CeilingRoseGame key="v2" config={v2 as GameConfig} />} />

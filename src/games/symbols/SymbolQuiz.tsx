@@ -5,8 +5,9 @@ import { SymbolDrawing } from './SymbolDrawing';
 import './symbols.css';
 
 type Answer = { id: string; correct: boolean; points: number; revealed: boolean };
-export function SymbolQuiz() {
-  const [round, setRound] = useState(() => makeRound());
+export function SymbolQuiz({ level = 1 }: { level?: 1 | 2 }) {
+  const imageChoices = level === 2;
+  const [round, setRound] = useState(() => makeRound(SYMBOLS, level));
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [help, setHelp] = useState(false);
@@ -35,7 +36,7 @@ export function SymbolQuiz() {
     else { setIndex(index + 1); setHint(false); setHelp(false); }
   }
   function restart(review = false) {
-    setRound(makeRound(review && missed.length ? missed : SYMBOLS));
+    setRound(makeRound(review && missed.length ? missed : SYMBOLS, level));
     setIndex(0); setAnswers([]); setHint(false); setHelp(false); setFinished(false);
   }
 
@@ -61,6 +62,7 @@ export function SymbolQuiz() {
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               {missed.length > 0 && <button className="quiz-primary" onClick={() => restart(true)}>Practise {missed.length} missed {missed.length === 1 ? 'symbol' : 'symbols'}</button>}
               <button className={missed.length ? 'quiz-secondary' : 'quiz-primary'} onClick={() => restart()}>Play again</button>
+              <Link className="quiz-secondary" to={imageChoices ? "/games/symbols" : "/games/symbols/level-2"}>{imageChoices ? "Play Level 1" : "Try Level 2 →"}</Link>
               <Link className="quiz-secondary" to="/">All games</Link>
             </div>
             {missed.length > 0 && <div className="mt-10 text-left"><h2 className="font-bold text-lg mb-4">Your review cards</h2><div className="grid sm:grid-cols-2 gap-4">{missed.map(s => <article key={s.id} className="flex gap-4 p-4 border border-slate-200 rounded-xl"><div className="w-16 h-16 shrink-0"><SymbolDrawing symbol={s} named /></div><div><h3 className="font-semibold">{s.name}</h3><p className="text-sm text-slate-500 mt-1">{s.explanation}</p></div></article>)}</div></div>}
@@ -68,17 +70,17 @@ export function SymbolQuiz() {
         ) : (
           <>
             <div className="flex items-start justify-between gap-4 mb-7">
-              <div><p className="text-xs uppercase tracking-widest font-bold text-blue-700 mb-2">Symbol match · Unit 203</p><h1 ref={heading} tabIndex={-1} className="text-3xl sm:text-4xl font-bold tracking-tight">What’s this symbol?</h1><p className="text-slate-500 mt-2">Choose its name. Take your time—there’s no timer.</p></div>
+              <div><p className="text-xs uppercase tracking-widest font-bold text-blue-700 mb-2">Symbol match · Level {level}</p><h1 ref={heading} tabIndex={-1} className="text-3xl sm:text-4xl font-bold tracking-tight">{imageChoices ? "Find the matching symbol" : "What’s this symbol?"}</h1><p className="text-slate-500 mt-2">{imageChoices ? "Look closely—the choices have similar shapes. Choose one image." : "Choose its name. Take your time—there’s no timer."}</p></div>
               <button className="quiz-secondary shrink-0" aria-expanded={help} aria-controls="quiz-help" onClick={() => setHelp(!help)}> ? Help</button>
             </div>
             {help && <aside id="quiz-help" className="rounded-2xl bg-blue-50 border border-blue-100 p-5 mb-6"><h2 className="font-semibold">A little help?</h2><p className="text-sm text-slate-600 mt-1">Correct answer: 10 points. With a hint: 5 points. A revealed or incorrect answer: 0 points.</p><div className="flex flex-wrap gap-3 mt-3"><button className="quiz-secondary" disabled={hint || !!answer} onClick={() => setHint(true)}>{hint ? 'Hint shown' : 'Give me a hint'}</button><button className="quiz-secondary" disabled={!!answer} onClick={() => submit(question.id, true)}>Reveal answer · 0 points</button></div></aside>}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="symbol-board bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center p-6 min-h-[260px] sm:min-h-[350px]"><span className="text-xs text-slate-400 uppercase tracking-widest mb-5">Identify the symbol</span><div className="w-40 h-40 sm:w-52 sm:h-52"><SymbolDrawing symbol={question} /></div><span className="text-xs text-slate-400 mt-5">Electrical installation symbols</span></div>
-              <section aria-label="Choose a matching name" className="flex flex-col justify-center gap-3">
+            <div className={imageChoices ? "space-y-5" : "grid md:grid-cols-2 gap-6"}>
+              {imageChoices ? <div className="bg-blue-50 border border-blue-100 rounded-2xl px-6 py-5 text-center"><p className="text-xs uppercase tracking-widest text-blue-600 mb-2">Find this</p><h2 className="text-2xl sm:text-3xl font-bold text-blue-950">{question.name}</h2></div> : <div className="symbol-board bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center p-6 min-h-[260px] sm:min-h-[350px]"><span className="text-xs text-slate-400 uppercase tracking-widest mb-5">Identify the symbol</span><div className="w-40 h-40 sm:w-52 sm:h-52"><SymbolDrawing symbol={question} /></div><span className="text-xs text-slate-400 mt-5">Electrical installation symbols</span></div>}
+              <section aria-label={imageChoices ? "Choose a matching symbol" : "Choose a matching name"} className={imageChoices ? "grid grid-cols-2 gap-3 sm:gap-5" : "flex flex-col justify-center gap-3"}>
                 {options.map((option, i) => {
                   const isCorrect = !!answer && option.id === question.id;
                   const isWrong = !!answer && answer.id === option.id && !answer.correct && !answer.revealed;
-                  return <button key={option.id} disabled={!!answer} onClick={() => submit(option.id)} className={`quiz-choice ${isCorrect ? 'quiz-correct' : isWrong ? 'quiz-wrong' : ''}`}><span className="quiz-letter">{String.fromCharCode(65 + i)}</span><span className="flex-1">{option.name}</span>{isCorrect && <span className="text-sm">✓ Correct</span>}{isWrong && <span className="text-sm">✕</span>}</button>;
+                  return <button key={option.id} disabled={!!answer} onClick={() => submit(option.id)} aria-label={imageChoices ? `Option ${String.fromCharCode(65 + i)}${answer ? `: ${option.name}${isCorrect ? ", correct answer" : ""}` : ""}` : undefined} className={`quiz-choice ${imageChoices ? "quiz-image-choice" : ""} ${isCorrect ? 'quiz-correct' : isWrong ? 'quiz-wrong' : ''}`}><span className="quiz-letter">{String.fromCharCode(65 + i)}</span>{imageChoices ? <><div className="quiz-option-drawing" aria-hidden="true"><SymbolDrawing symbol={option} /></div>{answer && <span className="text-sm text-center">{option.name}</span>}</> : <span className="flex-1">{option.name}</span>}{isCorrect && <span className="text-sm">✓ Correct</span>}{isWrong && <span className="text-sm">✕</span>}</button>;
                 })}
               </section>
             </div>

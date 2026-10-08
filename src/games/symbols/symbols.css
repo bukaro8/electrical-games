@@ -15,3 +15,7 @@
 .quiz-wrong { background: #fff1f2; border-color: #fda4af; color: #9f1239; }
 .symbol-board { background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 18px 18px; }
 @media (prefers-reduced-motion: reduce) { .symbol-quiz *, .symbol-quiz *::before, .symbol-quiz *::after { transition: none !important; animation: none !important; } }
+.quiz-image-choice { position: relative; flex-direction: column; justify-content: center; gap: 8px; padding: 16px 12px; min-height: 205px; }
+.quiz-image-choice .quiz-letter { position: absolute; top: 10px; left: 10px; width: 28px; height: 28px; }
+.quiz-option-drawing { width: 130px; height: 130px; max-width: 100%; }
+@media (min-width: 640px) { .quiz-image-choice { min-height: 240px; padding: 24px; } .quiz-option-drawing { width: 160px; height: 160px; } }

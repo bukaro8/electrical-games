@@ -411,3 +411,10 @@ The architecture already supports V2 additions via JSON config:
 - Four unlabelled photo symbols (square with cross, presumed dimmer, presumed bell, presumed loudspeaker) remain excluded pending confirmation of the worksheet answer key. Do not turn tentative identifications into scored questions.
 - Content reference for installation-plan conventions: https://support.maxem.io/hubfs/IEC%2060617%20SYMBOLS.pdf (installation symbols on pages 21–23). The main intake point identification also appears in https://booksite.elsevier.com/samplechapters/9780750687515/9780750687515.pdf . Explicit labels in the user's worksheets take precedence for the worksheet-specific names.
 - Tests cover round integrity, unique choices, correct-answer inclusion, scoring, review subsets and non-mutating shuffling. Browser checks cover 10/5/0 scoring, disabled completed answers, full-round completion, review restart, menu navigation, and a 390px mobile layout.
+
+### Symbol Match — Level 2
+
+- Route: `/games/symbols/level-2`; separate menu entry and links between levels from results.
+- Shows a name and four SVG image choices in a responsive two-column grid. Choice names appear only after answering or revealing.
+- Each symbol has three curated, distinct distractors from the existing worksheet set, selected by similar outlines and markings. No invented or unverified symbols are introduced.
+- Both levels share scoring, help, feedback, review rounds and keyboard interaction. Level 2 review rounds preserve the curated distractors.

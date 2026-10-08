@@ -113,3 +113,16 @@ test('review rounds keep only missed questions, still with four options; shuffle
   assert.deepEqual(shuffle(original, () => 0), [2, 3, 1]);
   assert.deepEqual(original, [1, 2, 3]);
 });
+
+test('level 2 uses three curated lookalikes for every symbol and for review rounds', () => {
+  const { SIMILAR_SYMBOLS } = require('../src/games/symbols/data.ts');
+  for (const { question, options } of makeRound(SYMBOLS, 2)) {
+    assert.equal(options.length, 4);
+    assert.equal(new Set(options.map(o => o.id)).size, 4);
+    assert.deepEqual(options.filter(o => o.id !== question.id).map(o => o.id).sort(), [...SIMILAR_SYMBOLS[question.id]].sort());
+    assert.equal(options.filter(o => o.id === question.id).length, 1);
+  }
+  const review = makeRound([SYMBOLS[0]], 2);
+  assert.equal(review.length, 1);
+  assert.deepEqual(review[0].options.map(o => o.id).sort(), ['one-way', 'two-way', 'intermediate', 'pull'].sort());
+});
